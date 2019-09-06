@@ -30,26 +30,30 @@ contract Supreme  {
         uint silverValue = balance / 1000;
         uint bronzeValue = balance % 1000;
         
+        uint bronzeToken = amount % 1000;
+        
+        uint toadminTokens = amount - bronzeValue;
+
         
         uint silverBalance = s.balanceOf(to) + silverValue;
-        
         // require(silverValue < 1000, "Sorry you cannot buy bronze greater than 999999")
         if(silverBalance < 1000){
+            
             if(silverValue >= 1) {
                 
-            uint bronzeBalance = balance - bronzeValue;
             s.transferFromTo(from, to, silverValue);
-            b.toAdmin(from, to,bronzeValue, bronzeBalance);
+            // b.toAdmin(toadminTokens);
+            b.replace(from, to,bronzeValue, bronzeToken);
             //toadmin
          }
          else {
-             b.replace(from,to,bronzeValue);
+             b.replace(from,to,bronzeValue, bronzeToken);
          }
         }
         else {
         
             buySilver(from,to, silverValue);
-            b.replace(from,to,bronzeValue);
+            b.replace(from,to,bronzeValue, bronzeToken);
         }
     }
     
@@ -63,14 +67,18 @@ contract Supreme  {
         uint goldvalue = balance / 1000;
         uint silverValue = balance % 1000;
         
+        uint silverToken = amount % 1000;
+        
+        uint toadminTokens = amount - silverValue;
+        
         if(goldvalue >= 1) {
-            uint silverBalance = balance - silverValue;
-
             g.transferFromTo(from, to, goldvalue);
-            s.toAdmin(from, to,silverValue, silverBalance);
+            s.replace(from, to,silverValue, silverToken);
+            // s.toAdmin(toadminTokens);
+
          }
          else {
-             s.replace(from, to,silverValue);
+             s.replace(from, to,silverValue, silverToken);
          }
     }
     

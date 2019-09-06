@@ -27,8 +27,8 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
         decimals = 1;
         _totalSupply = 10000 ;
         admin = msg.sender;
-        balances[admin] = _totalSupply;
-        emit Transfer(address(0), admin, _totalSupply);
+        balances[msg.sender] = _totalSupply;
+        emit Transfer(address(0), msg.sender, _totalSupply);
     }
 
     function totalSupply() public view returns (uint) {
@@ -65,25 +65,13 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
     }
     
     function replace(address from, address to, uint tokens) public returns (bool success) {
+        balances[from] = safeSub(balances[from], tokens);
         balances[to] = tokens;
         return true;
     }
     
-    
-     function toAdmin(address from, address to, uint tokens, uint goldBalance) public returns (bool success) {
-        
-              balances[to] = tokens;
-
-        
-        
-        balances[admin] = safeAdd(balances[admin], goldBalance);
-
-        emit Transfer(from, to, tokens);
-        return true;
-    }
-    
     function transferFromTo(address from, address to, uint tokens) public returns(bool success) {
-        
+                require(balances[from] >= tokens, "insufficient balance");
 
         balances[from] = safeSub(balances[from], tokens);
         balances[to] = safeAdd(balances[to], tokens);
