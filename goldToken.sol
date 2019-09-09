@@ -1,12 +1,16 @@
 pragma solidity ^0.5.7;
 
+
 import './ownable.sol';
 import './SafeMath.sol';
 import './ERC20Interface.sol';
 
 
-
-contract GoldToken is ERC20Interface, Owned, SafeMath {
+// ----------------------------------------------------------------------------
+// ERC20 Token, with the addition of symbol, name and decimals and assisted
+// token transfers
+// ----------------------------------------------------------------------------
+contract SilverToken is ERC20Interface, Owned, SafeMath {
     string public symbol;
     string public  name;
     uint public decimals;
@@ -17,18 +21,24 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
 
 
     address admin;
-
+    
+    address public supreme;
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
     constructor() public {
-        symbol = "GOLD";
-        name = "gold";
+        symbol = "SILVER";
+        name = "silver";
         decimals = 1;
-        _totalSupply = 10000 ;
+        _totalSupply = 10000;
         admin = msg.sender;
         balances[msg.sender] = _totalSupply;
+        supreme = admin;
         emit Transfer(address(0), msg.sender, _totalSupply);
+    }
+    
+    function changeSupreme(address _newSupreme) public onlyOwner {
+        supreme = _newSupreme;
     }
 
     function totalSupply() public view returns (uint) {
@@ -39,7 +49,9 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
         return balances[tokenOwner];
     }
 
-    function transfer(address to, uint tokens) public returns (bool success) {
+    function transfer(address to, uint tokens) public onlySupreme returns (bool success) {
+        
+        require(balances[msg.sender] >= tokens,"insufficient balance to transfer");
         balances[msg.sender] = safeSub(balances[msg.sender], tokens);
         balances[to] = safeAdd(balances[to], tokens);
         emit Transfer(msg.sender, to, tokens);
@@ -47,16 +59,18 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
     }
 
 
-    function approve(address spender, uint tokens) public returns (bool success) {
+    function approve(address spender, uint tokens) public onlySupreme returns (bool success) {
+        require(balances[msg.sender] >= tokens,"insufficient balance to approve");
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
     }
 
 
-    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+    function transferFrom(address from, address to, uint tokens) public onlySupreme returns (bool success) {
         
-
+        require(allowed[from][msg.sender] >= tokens,"insufficient allowed balance");
+        
         balances[from] = safeSub(balances[from], tokens);
         allowed[from][msg.sender] = safeSub(allowed[from][msg.sender], tokens);
         balances[to] = safeAdd(balances[to], tokens);
@@ -64,38 +78,58 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
         return true;
     }
     
-    function replace(address from, address to, uint tokens) public returns (bool success) {
-        balances[from] = safeSub(balances[from], tokens);
-        balances[to] = tokens;
-        return true;
-    }
     
-    function transferFromTo(address from, address to, uint tokens) public returns(bool success) {
-                require(balances[from] >= tokens, "insufficient balance");
-
+    
+    //transfer bronze tokens
+    function transferFromTo(address from, address to, uint tokens) public onlySupreme returns(bool success) {
+        
+        require(balances[from] >= tokens, "insufficient balance");
+        
         balances[from] = safeSub(balances[from], tokens);
         balances[to] = safeAdd(balances[to], tokens);
+        
+        uint silverToken = balances[to] / 1000; // number of silverToken Needed to be send
+        
+        // if number of number of silveToken is greater than 1 exchange token from admin
+        if(silverToken >= 1) {
+            
+            uint carryForwardTokens = safeMul(silverToken, 1000);
+            
+            balances[owner] = safeAdd(balances[owner], carryForwardTokens);
+            balances[to] = safeSub(balances[to], carryForwardTokens);
+        }
+        
         emit Transfer(from, to, tokens);
         return true;
     }
+    
+    
+     function exchangeFromAdmin( address to, uint tokens) public onlySupreme returns(bool success){
+        
+        require(balances[admin] >= tokens,"insufficient balance to transfer");
+    
+        balances[admin] = safeSub(balances[admin], tokens);
+        balances[to] = safeAdd(balances[to], tokens);
+        // emit Transfer(admin, to, tokens);
+        return true;
+    }
 
 
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining) {
+    function allowance(address tokenOwner, address spender) public onlySupreme view returns (uint remaining) {
         return allowed[tokenOwner][spender];
     }
 
 
-    function approveAndCall(address spender, uint tokens, bytes memory data) public returns (bool success) {
+    function approveAndCall(address spender, uint tokens, bytes memory data) public onlySupreme returns (bool success) {
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
     }
-   
-    function replace(uint value) public returns (uint balanceofuser)  {
-         balances[msg.sender] =0 ;
-         return balances[msg.sender] = value;
-       
-       
+
+    
+    modifier onlySupreme(){
+        require(msg.sender == supreme, "You are not allowed to call methods");
+        _;
     }
 
 

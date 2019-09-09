@@ -15,72 +15,80 @@ contract Supreme  {
     BronzeToken b;
     GoldToken g;
     
+    
+    address admin;
+    
     constructor(address payable gold, address payable silver, address payable bronze) public {
      s =  SilverToken(silver);
      b =  BronzeToken(bronze);
      g = GoldToken(gold);
+     
+     admin = msg.sender;
     }
     
- 
-    
-    function buyBronze(address from,address to, uint256 amount) external {
-        
-        uint balance = b.balanceOf(to) + amount;
-        
-        uint silverValue = balance / 1000;
-        uint bronzeValue = balance % 1000;
-        
-        uint bronzeToken = amount % 1000;
-        
-        uint toadminTokens = amount - bronzeValue;
-
-        
-        uint silverBalance = s.balanceOf(to) + silverValue;
-        // require(silverValue < 1000, "Sorry you cannot buy bronze greater than 999999")
-        if(silverBalance < 1000){
-            
-            if(silverValue >= 1) {
-                
-            s.transferFromTo(from, to, silverValue);
-            // b.toAdmin(toadminTokens);
-            b.replace(from, to,bronzeValue, bronzeToken);
-            //toadmin
-         }
-         else {
-             b.replace(from,to,bronzeValue, bronzeToken);
-         }
+    function isContract(address _addr) public view returns(bool){
+        uint32 size;
+        assembly{
+            size := extcodesize(_addr)
         }
-        else {
+        return (size > 0);
+    }   
+    
+    
+    function transferBronze(address from , address to, uint tokens) public returns(bool success) {
         
-            buySilver(from,to, silverValue);
-            b.replace(from,to,bronzeValue, bronzeToken);
+        require(!isContract(to) && to != address(0), "To address cannot be contract address or zero address");
+        require(from != to, "sender and reciver cannot be same");
+        
+        require(b.balanceOf(from) > tokens, "Insufficent bronze tokens");
+        
+        uint balance = b.balanceOf(to) + tokens;
+        
+        uint silverToken = balance / 1000;
+        
+        require(s.balanceOf(admin) > silverToken, "Insufficent silver token in admin");
+      
+        
+        b.transferFromTo(from, to, tokens);    
+        
+        
+        if(silverToken >= 1){
+            s.exchangeFromAdmin(to, silverToken);
         }
+        
+        
+        return true;
+        
     }
     
     
-    //toadmin
-    
-    function buySilver(address from,address to, uint256 amount) public {
+    function transferSilver(address from , address to, uint tokens) public returns (bool success){
         
-        uint balance = s.balanceOf(to) + amount;
+        require(!isContract(to) && to != address(0), "To address cannot be contract address or zero address");
+        require(from != to, "sender and reciver cannot be same");
         
-        uint goldvalue = balance / 1000;
-        uint silverValue = balance % 1000;
+        require(b.balanceOf(from) > tokens, "Insufficent bronze tokens");
         
-        uint silverToken = amount % 1000;
+        uint balance = b.balanceOf(to) + tokens;
         
-        uint toadminTokens = amount - silverValue;
+        uint goldTokens = balance / 1000;
         
-        if(goldvalue >= 1) {
-            g.transferFromTo(from, to, goldvalue);
-            s.replace(from, to,silverValue, silverToken);
-            // s.toAdmin(toadminTokens);
-
-         }
-         else {
-             s.replace(from, to,silverValue, silverToken);
-         }
+        require(s.balanceOf(admin) > goldTokens, "Insufficent silver token in admin");
+      
+        
+        s.transferFromTo(from, to, tokens);    
+        
+        
+        if(goldTokens >= 1){
+            g.exchangeFromAdmin(to, goldTokens);
+        }
+        
+        
+        return true;
+        
     }
+    
+    
     
     
     function getBalanceGold(address user) view public returns (uint256) {
@@ -95,5 +103,6 @@ contract Supreme  {
     function getBalanceBronze(address user) view public returns (uint256) {
         return b.balanceOf(user);
     }
+    
     
 }
