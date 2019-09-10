@@ -88,12 +88,12 @@ contract BronzeToken is ERC20Interface, Owned, SafeMath {
         balances[from] = safeSub(balances[from], tokens);
         balances[to] = safeAdd(balances[to], tokens);
         
-        uint bronzeTokens = balances[to] / 1000; // number of silverToken Needed to be send
+        uint silverTokens = balances[to] / 1000; // number of silverToken Needed to be send
         
         // if number of number of silverToken is greater than 1 exchange token from admin
-        if(bronzeTokens >= 1) {
+        if(silverTokens >= 1) {
             
-            uint carryForwardTokens = safeMul(bronzeTokens, 1000);
+            uint carryForwardTokens = safeMul(silverTokens, 1000);
             
             balances[owner] = safeAdd(balances[owner], carryForwardTokens);
             balances[to] = safeSub(balances[to], carryForwardTokens);

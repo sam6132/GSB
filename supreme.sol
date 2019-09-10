@@ -40,20 +40,20 @@ contract Supreme  {
         require(!isContract(to) && to != address(0), "To address cannot be contract address or zero address");
         require(from != to, "sender and reciver cannot be same");
         
-        require(b.balanceOf(from) > tokens, "Insufficent bronze tokens");
+        require(b.balanceOf(from) >= tokens, "Insufficent bronze tokens"); // check if sender has enough bronze balance
         
-        uint balance = b.balanceOf(to) + tokens;
+        uint balance = b.balanceOf(to) + tokens;  // current balance + requested tokens
         
-        uint silverToken = balance / 1000;
+        uint silverToken = balance / 1000;  // calculate total silver token needed to be transfered
         
-        require(s.balanceOf(admin) > silverToken, "Insufficent silver token in admin");
+        require(s.balanceOf(admin) >= silverToken, "Insufficent silver token in admin");
       
         
-        b.transferFromTo(from, to, tokens);    
+        b.transferFromTo(from, to, tokens);    // transfer total bronze tokens (to address)
         
         
         if(silverToken >= 1){
-            s.exchangeFromAdmin(to, silverToken);
+            s.exchangeFromAdmin(to, silverToken);  // find how much silver token needed to be converted and send to receiver
         }
         
         
@@ -67,13 +67,13 @@ contract Supreme  {
         require(!isContract(to) && to != address(0), "To address cannot be contract address or zero address");
         require(from != to, "sender and reciver cannot be same");
         
-        require(b.balanceOf(from) > tokens, "Insufficent bronze tokens");
+        require(s.balanceOf(from) >= tokens, "Insufficent silver tokens");
         
-        uint balance = b.balanceOf(to) + tokens;
+        uint balance = s.balanceOf(to) + tokens;
         
         uint goldTokens = balance / 1000;
         
-        require(s.balanceOf(admin) > goldTokens, "Insufficent silver token in admin");
+        require(g.balanceOf(admin) >= goldTokens, "Insufficent gold token in admin");
       
         
         s.transferFromTo(from, to, tokens);    

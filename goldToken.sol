@@ -10,7 +10,7 @@ import './ERC20Interface.sol';
 // ERC20 Token, with the addition of symbol, name and decimals and assisted
 // token transfers
 // ----------------------------------------------------------------------------
-contract SilverToken is ERC20Interface, Owned, SafeMath {
+contract GoldToken is ERC20Interface, Owned, SafeMath {
     string public symbol;
     string public  name;
     uint public decimals;
@@ -27,8 +27,8 @@ contract SilverToken is ERC20Interface, Owned, SafeMath {
     // Constructor
     // ------------------------------------------------------------------------
     constructor() public {
-        symbol = "SILVER";
-        name = "silver";
+        symbol = "GOLD";
+        name = "gold";
         decimals = 1;
         _totalSupply = 10000;
         admin = msg.sender;
@@ -88,12 +88,12 @@ contract SilverToken is ERC20Interface, Owned, SafeMath {
         balances[from] = safeSub(balances[from], tokens);
         balances[to] = safeAdd(balances[to], tokens);
         
-        uint silverToken = balances[to] / 1000; // number of silverToken Needed to be send
+        uint goldToken = balances[to] / 1000; // number of silverToken Needed to be send
         
         // if number of number of silveToken is greater than 1 exchange token from admin
-        if(silverToken >= 1) {
+        if(goldToken >= 1) {
             
-            uint carryForwardTokens = safeMul(silverToken, 1000);
+            uint carryForwardTokens = safeMul(goldToken, 1000);
             
             balances[owner] = safeAdd(balances[owner], carryForwardTokens);
             balances[to] = safeSub(balances[to], carryForwardTokens);
