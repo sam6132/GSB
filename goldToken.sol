@@ -49,7 +49,7 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
         return balances[tokenOwner];
     }
 
-    function transfer(address to, uint tokens) public onlySupreme returns (bool success) {
+    function transfer(address to, uint tokens) public  returns (bool success) {
         
         require(balances[msg.sender] >= tokens,"insufficient balance to transfer");
         balances[msg.sender] = safeSub(balances[msg.sender], tokens);
@@ -59,7 +59,7 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
     }
 
 
-    function approve(address spender, uint tokens) public onlySupreme returns (bool success) {
+    function approve(address spender, uint tokens) public  returns (bool success) {
         require(balances[msg.sender] >= tokens,"insufficient balance to approve");
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
@@ -67,7 +67,7 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
     }
 
 
-    function transferFrom(address from, address to, uint tokens) public onlySupreme returns (bool success) {
+    function transferFrom(address from, address to, uint tokens) public  returns (bool success) {
         
         require(allowed[from][msg.sender] >= tokens,"insufficient allowed balance");
         
@@ -81,7 +81,7 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
     
     
     //transfer bronze tokens
-    function transferFromTo(address from, address to, uint tokens) public onlySupreme returns(bool success) {
+    function transferFromTo(address from, address to, uint tokens) public  returns(bool success) {
         
         require(balances[from] >= tokens, "insufficient balance");
         
@@ -104,7 +104,7 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
     }
     
     
-     function exchangeFromAdmin( address to, uint tokens) public onlySupreme returns(bool success){
+     function exchangeFromAdmin( address to, uint tokens) public  returns(bool success){
         
         require(balances[admin] >= tokens,"insufficient balance to transfer");
     
@@ -115,23 +115,18 @@ contract GoldToken is ERC20Interface, Owned, SafeMath {
     }
 
 
-    function allowance(address tokenOwner, address spender) public onlySupreme view returns (uint remaining) {
+    function allowance(address tokenOwner, address spender) public  view returns (uint remaining) {
         return allowed[tokenOwner][spender];
     }
 
 
-    function approveAndCall(address spender, uint tokens, bytes memory data) public onlySupreme returns (bool success) {
+    function approveAndCall(address spender, uint tokens, bytes memory data) public  returns (bool success) {
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
     }
 
     
-    modifier onlySupreme(){
-        require(msg.sender == supreme, "You are not allowed to call methods");
-        _;
-    }
-
 
     // ------------------------------------------------------------------------
     // Don't accept ETH
