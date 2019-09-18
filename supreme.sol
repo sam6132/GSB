@@ -58,7 +58,8 @@ contract Supreme  {
 
 
         if(silverToken >= 1){
-            s.exchangeFromAdmin(to, silverToken );  // find how much silver token needed to be converted and send to receiver
+            silverToken = (silverToken* 10** decimals);
+            s.exchangeFromAdmin(to, silverToken);  // find how much silver token needed to be converted and send to receiver
         }
 
 
@@ -89,6 +90,7 @@ contract Supreme  {
 
 
         if(goldTokens >= 1){
+            goldTokens = (goldTokens *10 **decimals);
             g.exchangeFromAdmin(to, goldTokens);
         }
 
@@ -96,22 +98,3 @@ contract Supreme  {
         return true;
 
     }
-
-
-
-
-    function getBalanceGold(address user) view public returns (uint256) {
-        return g.balanceOf(user);
-    }
-
-
-    function getBalanceSilver(address user) view public returns (uint256) {
-        return s.balanceOf(user);
-    }
-
-    function getBalanceBronze(address user) view public returns (uint256) {
-        return b.balanceOf(user);
-    }
-
-
-}
