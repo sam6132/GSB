@@ -1,0 +1,34 @@
+intial            after                  1st (999-B transcation)     intial             final
+s-10,000         s-same                                            s-0                s-0
+g-10,000         g-same                                            g- 0               g-0
+b-10,000         b-90001                                            b-0                 b-999
+
+
+intial            after                  2nd (1-B transcation)     intial             final
+s-10,000         s-9999                                            s-0                s-1
+g-10,000         g-10000                                            g- 0               g-0
+b-90001          b-10000                                           b-999                b-0
+
+intial            after                  3rd (999-S transcation)     intial             final
+s-9,999           s-10,000                                            s-1                s-0
+g-10,000         g-9999.0                                             g- 0               g-1
+b-10,000         b-10000                                              b-0                b-0
+                                    4th (metamask 10 -gold)
+
+                                           (success )
+
+                                     5t (methmask 10-silver)
+                                         (failed)
+
+
+                                       6(9999 -B)
+
+G-  10,000                                                                  g-1   B-999 s-9
+
+B -  90001
+
+S - 9,9991
+
+
+
+  
